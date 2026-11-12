@@ -1,0 +1,13 @@
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+
+# macOS
+.DS_Store
+
+# Photos (selfie and step outputs must stay private)
+*.jpg
+*.jpeg
+*.png
