@@ -95,7 +95,7 @@ def hue_angle(a, b):
 # Hue burchagi teri uchun odatda 40..70 gradus atrofida bo'ladi:
 #   kichik (pushtiroq)  -> sovuq (cool) ohang
 #   katta  (sarg'ishroq) -> iliq (warm) ohang
-HUE_THRESHOLD = 45.0
+HUE_THRESHOLD = 55  
 #
 # L* — yorug'lik. Yuqori bo'lsa teri ochroq (light), past bo'lsa to'qroq (deep).
 LIGHTNESS_THRESHOLD = 65.0
