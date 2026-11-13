@@ -7,7 +7,7 @@ Takes a selfie, finds the face, measures cheek skin color in CIELAB, and decides
 ```bash
 python3 -m venv venv
 source venv/bin/activate
-pip install opencv-python numpy
+pip install -r requirements.txt
 ```
 
 Put your own photo in this folder as `selfie.jpg`, then run the steps one by one:
@@ -26,6 +26,12 @@ Or run everything at once on any photo (or several):
 ```bash
 python main.py              # uses selfie.jpg
 python main.py photo.jpg    # -> photo_result.jpg
+```
+
+Or open it as a web page (Gradio), upload a photo and see the result:
+
+```bash
+python app.py               # then open http://127.0.0.1:7860
 ```
 
 The face detection model `face_detection_yunet_2023mar.onnx` is from [OpenCV Zoo](https://github.com/opencv/opencv_zoo/tree/main/models/face_detection_yunet) (MIT license).

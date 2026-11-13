@@ -1,0 +1,7 @@
+opencv-python
+numpy
+# Gradio 4.x works on Python 3.9 (Gradio 5 needs Python 3.10+)
+gradio>=4,<5
+# Gradio 4 breaks with these newer versions:
+huggingface_hub<1.0   # 1.0 removed HfFolder -> ImportError on "import gradio"
+pydantic<2.11         # 2.11+ -> "TypeError: argument of type 'bool' is not iterable" when the page loads

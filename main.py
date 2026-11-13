@@ -202,17 +202,12 @@ def draw_result(image, right_cheek, left_cheek, radius, season, L, hue, underton
     return np.vstack([result, panel])
 
 
-def analyze(image_path):
-    image = cv2.imread(image_path)
-    if image is None:
-        print("Xato: rasm topilmadi yoki ochib bo'lmadi:", image_path)
-        return False
-
+# Rasmning o'zi (fayl emas) bilan ishlaydi — app.py ham shu funksiyadan foydalanadi.
+# Yuz topilmasa None qaytaradi, aks holda barcha natijalarni lug'at (dict) sifatida.
+def analyze_image(image):
     face = detect_face(image)
     if face is None:
-        print("Yuz topilmadi:", image_path)
-        print("Yuzingiz to'g'ridan-to'g'ri va yaxshi yoritilgan rasm bilan sinab ko'ring.")
-        return False
+        return None
 
     right_cheek, left_cheek, radius = find_cheeks(face)
     L, a, b, pixel_count = get_cheek_lab(image, right_cheek, left_cheek, radius)
@@ -221,20 +216,48 @@ def analyze(image_path):
     undertone = get_undertone(hue)
     depth = get_depth(L)
     season = get_season(undertone, depth)
+    result_image = draw_result(image, right_cheek, left_cheek, radius, season, L, hue, undertone, depth)
+
+    # Qiymat chegaraga juda yaqin bo'lsa, natija ishonchsiz.
+    uncertain = abs(hue - HUE_THRESHOLD) < 3 or abs(L - LIGHTNESS_THRESHOLD) < 3
+
+    return {
+        "season": season,
+        "tips": SEASON_TIPS[season],
+        "L": L,
+        "hue": hue,
+        "undertone": undertone,
+        "depth": depth,
+        "uncertain": uncertain,
+        "result_image": result_image,
+    }
+
+
+# Fayl yo'lini oladi, natijani terminalga chiqaradi va rasmni saqlaydi.
+def analyze(image_path):
+    image = cv2.imread(image_path)
+    if image is None:
+        print("Xato: rasm topilmadi yoki ochib bo'lmadi:", image_path)
+        return False
+
+    result = analyze_image(image)
+    if result is None:
+        print("Yuz topilmadi:", image_path)
+        print("Yuzingiz to'g'ridan-to'g'ri va yaxshi yoritilgan rasm bilan sinab ko'ring.")
+        return False
 
     # "rasm.jpg" -> "rasm_result.jpg"
     # os.path.splitext nomni va kengaytmani (.jpg) ajratadi.
     name, extension = os.path.splitext(image_path)
     output_path = name + "_result.jpg"
-    result = draw_result(image, right_cheek, left_cheek, radius, season, L, hue, undertone, depth)
-    cv2.imwrite(output_path, result)
+    cv2.imwrite(output_path, result["result_image"])
 
     print("Rasm:", image_path)
-    print("L* (yorug'lik):", round(L, 1), "->", depth)
-    print("Hue burchagi:  ", round(hue, 1), "->", undertone)
-    print("Sizning faslingiz:", season)
-    print("Sizga mos ranglar:", SEASON_TIPS[season])
-    if abs(hue - HUE_THRESHOLD) < 3 or abs(L - LIGHTNESS_THRESHOLD) < 3:
+    print("L* (yorug'lik):", round(result["L"], 1), "->", result["depth"])
+    print("Hue burchagi:  ", round(result["hue"], 1), "->", result["undertone"])
+    print("Sizning faslingiz:", result["season"])
+    print("Sizga mos ranglar:", result["tips"])
+    if result["uncertain"]:
         print("Eslatma: qiymatlar chegaraga juda yaqin, natija aniq emas.")
     print("Natija saqlandi:", output_path)
     return True
@@ -242,19 +265,22 @@ def analyze(image_path):
 
 # ---- Asosiy dastur ----
 
-# sys.argv — terminalda yozilgan so'zlar ro'yxati: ["main.py", "rasm.jpg", ...]
-# Agar rasm nomi berilmagan bo'lsa, selfie.jpg ishlatiladi.
-# Bir nechta rasm berilsa, har birini navbat bilan tahlil qiladi.
-image_paths = sys.argv[1:]
-if len(image_paths) == 0:
-    image_paths = ["selfie.jpg"]
+# Bu blok faqat "python main.py" deb ishga tushirilganda bajariladi.
+# app.py "import main" qilganda esa bajarilmaydi — faqat funksiyalar olinadi.
+if __name__ == "__main__":
+    # sys.argv — terminalda yozilgan so'zlar ro'yxati: ["main.py", "rasm.jpg", ...]
+    # Agar rasm nomi berilmagan bo'lsa, selfie.jpg ishlatiladi.
+    # Bir nechta rasm berilsa, har birini navbat bilan tahlil qiladi.
+    image_paths = sys.argv[1:]
+    if len(image_paths) == 0:
+        image_paths = ["selfie.jpg"]
 
-all_ok = True
-for i, path in enumerate(image_paths):
-    if i > 0:
-        print()
-    if not analyze(path):
-        all_ok = False
+    all_ok = True
+    for i, path in enumerate(image_paths):
+        if i > 0:
+            print()
+        if not analyze(path):
+            all_ok = False
 
-if not all_ok:
-    raise SystemExit(1)
+    if not all_ok:
+        raise SystemExit(1)
