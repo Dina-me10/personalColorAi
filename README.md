@@ -17,6 +17,7 @@ python step1.py   # open the image, print size and center pixel color (BGR)
 python step2.py   # detect the face with YuNet -> step2_face.jpg
 python step3.py   # find both cheeks from face landmarks -> step3_cheeks.jpg
 python step4.py   # measure cheek color: L*, a*, b*, hue angle
+python step5.py   # decide the season: warm/cool (hue) + light/deep (L*)
 ```
 
 The face detection model `face_detection_yunet_2023mar.onnx` is from [OpenCV Zoo](https://github.com/opencv/opencv_zoo/tree/main/models/face_detection_yunet) (MIT license).
