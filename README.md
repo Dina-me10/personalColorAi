@@ -21,4 +21,11 @@ python step5.py   # decide the season: warm/cool (hue) + light/deep (L*)
 python step6.py   # draw cheeks, season name and color palette -> step6_result.jpg
 ```
 
+Or run everything at once on any photo (or several):
+
+```bash
+python main.py              # uses selfie.jpg
+python main.py photo.jpg    # -> photo_result.jpg
+```
+
 The face detection model `face_detection_yunet_2023mar.onnx` is from [OpenCV Zoo](https://github.com/opencv/opencv_zoo/tree/main/models/face_detection_yunet) (MIT license).
